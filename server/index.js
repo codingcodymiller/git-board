@@ -1,5 +1,13 @@
 require('dotenv/config');
 const express = require('express');
+const Crypto = require('crypto');
+
+function randomString(size = 21) {
+  return Crypto
+    .randomBytes(size)
+    .toString('hex')
+    .slice(0, size);
+}
 
 const db = require('./database');
 const ClientError = require('./client-error');
@@ -14,9 +22,20 @@ app.use(sessionMiddleware);
 app.use(express.json());
 
 app.get('/api/health-check', (req, res, next) => {
-  db.query(`select 'successfully connected' as "message"`)
+  db.query('select \'successfully connected\' as "message"')
     .then(result => res.json(result.rows[0]))
     .catch(err => next(err));
+});
+
+app.get('/git-auth', (req, res, next) => {
+  const { user } = req.query;
+  const { GITHUB_CLIENT_ID, GITHUB_REDIRECT_URI } = process.env;
+  const randomSecret = randomString();
+  const query = `state=${randomSecret}` +
+                `&login=${user}` +
+                `&client_id=${GITHUB_CLIENT_ID}` +
+                `&redirect_uri=${GITHUB_REDIRECT_URI}`;
+  res.redirect(`https://github.com/login/oauth/authorize?${query}`);
 });
 
 app.use('/api', (req, res, next) => {
