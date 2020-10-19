@@ -27,7 +27,7 @@ app.get('/api/health-check', (req, res, next) => {
     .catch(err => next(err));
 });
 
-app.get('/git-auth', (req, res, next) => {
+app.get('/api/git-auth', (req, res, next) => {
   const { user } = req.query;
   const { GITHUB_CLIENT_ID, GITHUB_REDIRECT_URI } = process.env;
   const randomSecret = randomString();
@@ -38,9 +38,15 @@ app.get('/git-auth', (req, res, next) => {
   res.redirect(`https://github.com/login/oauth/authorize?${query}`);
 });
 
-app.get('/api/auth', (req, res, next) => {
-  const { body, query } = req;
-  res.status(201).json(JSON.stringify({ body, query }));
+app.get('/api/token', (req, res, next) => {
+  const { code, state } = req.query;
+  const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, HOME_REDIRECT_URI } = process.env;
+  const query = `state=${state}` +
+                `&code=${code}` +
+                `&client_id=${GITHUB_CLIENT_ID}` +
+                `&client_secret=${GITHUB_CLIENT_SECRET}` +
+                `&redirect_uri=${HOME_REDIRECT_URI}`;
+  res.redirect(`https://github.com/login/oauth/access_token?${query}`);
 });
 
 app.use('/api', (req, res, next) => {

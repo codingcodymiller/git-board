@@ -1,26 +1,25 @@
 import React from 'react';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from 'react-router-dom';
+import Login from './login';
+import Home from './home';
 
 export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      userInputVal: ''
-    };
-  }
-
-  updateInput(event) {
-    this.setState({
-      userInputVal: event.currentTarget.value
-    });
-  }
-
   render() {
     return (
-      <div>
-        <h3>GitHub Username:</h3>
-        <input type="text" value={this.state.userInputVal} onChange={this.updateInput} />
-        <a href={`/git-auth?user=${this.state.userInputVal}`}>Login</a>
-      </div>
+      <Router>
+        <Switch>
+          <Route path="/home">
+            <Home />
+          </Route>
+          <Route path="/">
+            <Login />
+          </Route>
+        </Switch>
+      </Router>
     );
   }
 }
