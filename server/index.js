@@ -38,6 +38,11 @@ app.get('/git-auth', (req, res, next) => {
   res.redirect(`https://github.com/login/oauth/authorize?${query}`);
 });
 
+app.get('/api/auth', (req, res, next) => {
+  const { body, query } = req;
+  res.status(201).json(JSON.stringify({ body, query }));
+});
+
 app.use('/api', (req, res, next) => {
   next(new ClientError(`cannot ${req.method} ${req.originalUrl}`, 404));
 });
