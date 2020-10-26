@@ -27,36 +27,25 @@ app.get('/api/health-check', (req, res, next) => {
     .catch(err => next(err));
 });
 
-app.get('/api/git-auth', (req, res, next) => {
+app.get('/api/token', async (req, res) => {
   const { user } = req.query;
-  const userHash = Crypto.createHash('sha256').update(user).digest("hex");
-  const { GITHUB_CLIENT_ID, GITHUB_REDIRECT_URI } = process.env;
+  const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_REDIRECT_URI } = process.env;
   const randomSecret = randomString();
-  const query = `state=${randomSecret}` +
+  const authCodeQuery = `state=${randomSecret}` +
                 `&login=${user}` +
                 `&client_id=${GITHUB_CLIENT_ID}` +
                 `&redirect_uri=${GITHUB_REDIRECT_URI}`;
-  console.log('git auth reached!');
-  console.log(`https://github.com/login/oauth/authorize?${query}`);
-  res.redirect(`https://github.com/login/oauth/authorize?${query}`);
-});
+  const authCodeResponse = await fetch(`https://github.com/login/oauth/authorize?${authCodeQuery}`);
+  const { code, state } = await authCodeResponse.json();
 
-app.get('/api/token', (req, res, next) => {
-  const { code, state } = req.query;
-  const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, HOME_REDIRECT_URI } = process.env;
-  const query = `state=${state}` +
+  const authTokenQuery = `state=${state}` +
                 `&code=${code}` +
                 `&client_id=${GITHUB_CLIENT_ID}` +
                 `&client_secret=${GITHUB_CLIENT_SECRET}` +
-                `&redirect_uri=${HOME_REDIRECT_URI}`;
-  console.log('token endpoint reached!');
-  console.log(`https://github.com/login/oauth/access_token?${query}`);
-  res.redirect(`https://github.com/login/oauth/access_token?${query}`);
-});
-
-app.get('/api/token/save', (req, res, next) => {
-  const { access_token: token } = req.query;
-  res.redirect(`https://git-dash.codingcodymiller.com/home/${token}`)
+                `&redirect_uri=${GITHUB_REDIRECT_URI}`;
+  const authTokenResponse = await fetch(`https://github.com/login/oauth/access_token?${authTokenQuery}`);
+  const { access_token: token } = await authTokenResponse.json();
+  res.redirect(`/home/${token}`);
 });
 
 app.use('/api', (req, res, next) => {
