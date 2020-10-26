@@ -12,7 +12,7 @@ export default class App extends React.Component {
     return (
       <Router>
         <Switch>
-          <Route path="/home">
+          <Route path="/home/:token">
             <Home />
           </Route>
           <Route path="/">
