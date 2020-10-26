@@ -36,7 +36,11 @@ app.get('/api/token', async (req, res) => {
                 `&login=${user}` +
                 `&client_id=${GITHUB_CLIENT_ID}` +
                 `&redirect_uri=${GITHUB_REDIRECT_URI}`;
-  const authCodeResponse = await fetch(`https://github.com/login/oauth/authorize?${authCodeQuery}`);
+  const authCodeResponse = await fetch(`https://github.com/login/oauth/authorize?${authCodeQuery}`, {
+    headers: {
+      Accept: 'application/json'
+    }
+  });
   const { code, state } = await authCodeResponse.json();
 
   const authTokenQuery = `state=${state}` +
@@ -44,7 +48,11 @@ app.get('/api/token', async (req, res) => {
                 `&client_id=${GITHUB_CLIENT_ID}` +
                 `&client_secret=${GITHUB_CLIENT_SECRET}` +
                 `&redirect_uri=${GITHUB_REDIRECT_URI}`;
-  const authTokenResponse = await fetch(`https://github.com/login/oauth/access_token?${authTokenQuery}`);
+  const authTokenResponse = await fetch(`https://github.com/login/oauth/access_token?${authTokenQuery}`, {
+    headers: {
+      Accept: 'application/json'
+    }
+  });
   const { access_token: token } = await authTokenResponse.json();
   res.redirect(`/home/${token}`);
 });
