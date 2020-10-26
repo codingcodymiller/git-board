@@ -16,7 +16,8 @@ class Home extends React.Component {
   getUserData() {
     fetch('https://api.github.com/user', {
       headers: {
-        Authorization: `token ${this.props.match.params.token}`
+        Authorization: `token ${this.props.match.params.token}`,
+        Accept: 'application/vnd.github.v3+json',
       }
     })
       .then(res => res.json())
