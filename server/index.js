@@ -1,6 +1,7 @@
 require('dotenv/config');
 const express = require('express');
 const Crypto = require('crypto');
+const fetch = require('node-fetch');
 
 function randomString(size = 21) {
   return Crypto
