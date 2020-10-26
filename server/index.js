@@ -29,13 +29,14 @@ app.get('/api/health-check', (req, res, next) => {
 
 app.get('/api/git-auth', (req, res, next) => {
   const { user } = req.query;
+  const userHash = Crypto.createHash('sha256').update(user).digest("hex");
   const { GITHUB_CLIENT_ID, GITHUB_REDIRECT_URI } = process.env;
   const randomSecret = randomString();
   const query = `state=${randomSecret}` +
                 `&login=${user}` +
                 `&client_id=${GITHUB_CLIENT_ID}` +
                 `&redirect_uri=${GITHUB_REDIRECT_URI}`;
-  console.log("git auth reached!")
+  console.log('git auth reached!');
   console.log(`https://github.com/login/oauth/authorize?${query}`);
   res.redirect(`https://github.com/login/oauth/authorize?${query}`);
 });
@@ -48,9 +49,14 @@ app.get('/api/token', (req, res, next) => {
                 `&client_id=${GITHUB_CLIENT_ID}` +
                 `&client_secret=${GITHUB_CLIENT_SECRET}` +
                 `&redirect_uri=${HOME_REDIRECT_URI}`;
-  console.log("token endpoint reached!")
+  console.log('token endpoint reached!');
   console.log(`https://github.com/login/oauth/access_token?${query}`);
   res.redirect(`https://github.com/login/oauth/access_token?${query}`);
+});
+
+app.get('/api/token/save', (req, res, next) => {
+  const { access_token: token } = req.query;
+  res.redirect(`https://git-dash.codingcodymiller.com/home/${token}`)
 });
 
 app.use('/api', (req, res, next) => {
