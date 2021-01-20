@@ -4,7 +4,7 @@ class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userInputVal: ''
+      userInputVal: 'codingcodymiller'
     };
     this.updateInput = this.updateInput.bind(this);
   }
@@ -20,7 +20,7 @@ class Login extends React.Component {
       <div>
         <h3>GitHub Username:</h3>
         <input type="text" value={this.state.userInputVal} onChange={this.updateInput} />
-        <a href={`/api/token?user=${this.state.userInputVal}`}>Login</a>
+        <a href={`/api/login?user=${this.state.userInputVal}`}>Login</a>
       </div>
     );
   }
