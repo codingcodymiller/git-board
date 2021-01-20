@@ -2,6 +2,7 @@ require('dotenv/config');
 const express = require('express');
 const Crypto = require('crypto');
 const fetch = require('node-fetch');
+const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_REDIRECT_URI } = process.env;
 
 function randomString(size = 21) {
   return Crypto
@@ -28,21 +29,18 @@ app.get('/api/health-check', (req, res, next) => {
     .catch(err => next(err));
 });
 
-app.get('/api/token', async (req, res) => {
+app.get('/api/login', (req, res) => {
   const { user } = req.query;
-  const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_REDIRECT_URI } = process.env;
   const randomSecret = randomString();
   const authCodeQuery = `state=${randomSecret}` +
                 `&login=${user}` +
                 `&client_id=${GITHUB_CLIENT_ID}` +
                 `&redirect_uri=${GITHUB_REDIRECT_URI}`;
-  const authCodeResponse = await fetch(`https://github.com/login/oauth/authorize?${authCodeQuery}`, {
-    headers: {
-      Accept: 'application/json'
-    }
-  });
-  const { code, state } = await authCodeResponse.json();
+  res.redirect(`https://github.com/login/oauth/authorize?${authCodeQuery}`);
+});
 
+app.get('/api/token', async (req, res) => {
+  const { code, state } = req.query;
   const authTokenQuery = `state=${state}` +
                 `&code=${code}` +
                 `&client_id=${GITHUB_CLIENT_ID}` +
